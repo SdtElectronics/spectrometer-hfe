@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <aside>
+            <header hidden = "true">
+                <h1>Spectrometer-hfe</h1>
+                <p>v0.1</p>
+            </header>
+
+            <section>
+                <h4 class = "side-indent">Analysis</h4>
+                <p class = "btns">
+                    <span id = "as-start" class = "inline-btn">▶</span>
+                    <span id = "as-stop" class = "inline-btn">■</span>
+                </p>
+                <p class = "side-indent">
+                    <span>Exposure Time</span>
+                    <select>
+                        <option value = "0">10</option>
+                        <option value = "1">100</option>
+                    </select>
+                </p>
+            </section>
+
+            <section>
+                <h4 class = "side-indent">Calibration</h4>
+                <p class = "btns">
+                    <span class = "inline-btn">▶</span>
+                    <span class = "inline-btn">⟲</span>
+                </p>
+            </section>
+
+            <section>
+                <h4 class = "side-indent">Console</h4>
+                <p class = "btns">
+                    <span id = "cs-start" class = "inline-btn">▶</span>
+                    <span id = "cs-stop" class = "inline-btn">■</span>
+                </p>
+
+                <p class = "side-indent">
+                    <span>Receive</span>
+                    <select id = "rxRep">
+                        <option value = "16">HEX</option>
+                        <option value = "1">ASC</option>
+                    </select>
+                </p>
+
+                <p class = "side-indent">
+                    <span>Send</span>
+                    <select id = "txRep">
+                        <option value = "0">ASC</option>
+                        <option value = "16">HEX</option>
+                    </select>
+                </p>
+            </section>
+        </aside>
+
+        <main>
+            <div id = "graph-cont">
+                <canvas id = "graph"></canvas>
+            </div>
+
+            <div id = "console">
+                <section id = "history-cont">
+                    <ul id = "history"></ul>
+                </section>
+                <form id = "input">
+                    <input id = "cmd" type = "text" autocomplete = "off" placeholder = "Console"/>
+                </form>
+            </div>
+        </main>
+    </body>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="src/console.js"></script>
+    <script src="src/serial.js"></script>
+    <script src="src/codec.js"></script>
+    <script src="src/serialCon.js"></script>
+    <script src="src/ui.js"></script>
+</html>
