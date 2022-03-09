@@ -5,24 +5,33 @@ class SerialConsole{
     }
 
     async start(){
-        if(!this.#serial.opend()){
-            try{
-                await this.#serial.open({baudRate: this.#baud});
-            }catch(error){
-                this.logError(error.message);
-            }
-        }
-
         try{
-            await this.#serial.poll(msg => this.logRecv(this.#decoder.decode(msg)));
+            await this.#serial.init({baudRate: this.#baud});
         }catch(error){
             this.logError(error.message);
         }
+
+        try{
+            this.run = true;
+            await this.#serial.poll((msg, len) => this.logRecv(this.#decoder.decode(msg), len), this);
+        }catch(error){
+            this.logError(error.message);
+            if(error.message == "The device has been lost."){
+                await this.stop();
+                this.#serial.deinit();
+                throw error;
+            }
+        }
+    }
+
+    pause(){
+        this.run = false;
     }
 
     async stop(){
         try{
             await this.#serial.close();
+            this.run = false;
         }catch(error){
             this.logError(error.message);
         }
@@ -30,12 +39,18 @@ class SerialConsole{
 
     async send(msg){
         this.#con.push(msg);
-        this.logSend(msg);
+        const data = this.#encoder.encode(msg);
+        this.logSend(msg, data.length);
         try{
-            await this.#serial.write(this.#encoder.encode(msg));
+            await this.#serial.write(data);
         }catch(error){
             this.logError(error.message);
         }
+    }
+
+    echo(msg){
+        const data = this.#encoder.encode(msg);
+        this.logSend(msg, data.length);
     }
 
     move(step){
@@ -74,4 +89,6 @@ class SerialConsole{
 
     #encoder = new TextEncoder();
     #decoder = new TextDecoder();
+
+    run = false;
 }

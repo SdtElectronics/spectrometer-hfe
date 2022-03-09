@@ -8,15 +8,13 @@ class SerialCom{
 
     async open(options){
         if(!this.inited()){
-
+            throw new TypeError("Port is not initialized");
         }
 
-        if(this.opend()){
-
+        if(!this.opend()){
+            await this.#port.open(options);
+            this.#init();
         }
-
-        await this.#port.open(options);
-        this.#init();
     }
 
     async init(options, filters = {}){
@@ -33,7 +31,9 @@ class SerialCom{
             try{
                 return await this.#reader.read();
             }catch(error){
-                this.#reader = this.#readStream.getReader();
+                if(error.message != "The device has been lost."){
+                    this.#reader = this.#readStream.getReader();
+                }
                 throw error;
             }
         }
@@ -54,11 +54,11 @@ class SerialCom{
         return false;
     }
 
-    async poll(callback){
-        while(true){
+    async poll(callback, pause = {run: true}){
+        while(pause.run){
             const { value, done } = await this.read();
             if(value){
-                callback(value);
+                callback(value, value.length);
             }else{
                 break;
             }
@@ -69,11 +69,11 @@ class SerialCom{
 
     async close(){
         if(!this.inited()){
-
+            throw new TypeError("Port is not initialized");
         }
 
         if(!this.#port.readable){
-
+            throw new TypeError("Port is not opened");
         }
 
         this.#reader.releaseLock();
@@ -101,6 +101,13 @@ class SerialCom{
 
     inited(){
         return !!this.#port;
+    }
+
+    deinit(){
+        this.#port = null;
+        this.#readStream = null;
+        this.#reader = null;
+        this.#writer = null;
     }
 
     #init(){

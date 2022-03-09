@@ -20,11 +20,32 @@
                     <span id = "as-start" class = "inline-btn">▶</span>
                     <span id = "as-stop" class = "inline-btn">■</span>
                 </p>
+
+                <p class = "side-indent">
+                    <span><input type = "radio" name = "as-mode" checked/>Continuous</span>
+                    <span><input type = "radio" name = "as-mode" id = "as-single"/>Single</span>
+                </p>
+
                 <p class = "side-indent">
                     <span>Exposure Time</span>
-                    <select>
-                        <option value = "0">10</option>
-                        <option value = "1">100</option>
+                    <select id = "exposure">
+                        <option value = "00">10us</option>
+                        <option value = "01">20us</option>
+                        <option value = "02">50us</option>
+                        <option value = "03">100us</option>
+                        <option value = "04">200us</option>
+                        <option value = "05">500us</option>
+                        <option value = "06">1ms</option>
+                        <option value = "07">2ms</option>
+                        <option value = "08">5ms</option>
+                        <option value = "09">10ms</option>
+                        <option value = "10">20ms</option>
+                        <option value = "11">50ms</option>
+                        <option value = "12">100ms</option>
+                        <option value = "13">200ms</option>
+                        <option value = "14">500ms</option>
+                        <option value = "15">1s</option>
+                        <option value = "16">2s</option>
                     </select>
                 </p>
             </section>
@@ -79,6 +100,7 @@
     </body>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="src/spectrograph.js"></script>
     <script src="src/console.js"></script>
     <script src="src/serial.js"></script>
     <script src="src/codec.js"></script>

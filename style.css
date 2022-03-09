@@ -37,7 +37,7 @@ aside>header>h1{
 }
 
 .side-indent{
-    padding-left: 1.5rem;
+    padding: 0rem 0.9rem 0rem 1.5rem;
 }
 
 aside>section{
@@ -72,12 +72,16 @@ aside>section>p{
 }
 
 aside>section>p>select{
-    margin-right: 0.9rem;
     width: 5rem;
     font-size: 1.3rem;
     border: none;
     border-bottom: solid 1px #aaa;
     padding-bottom: 0.2rem;
+}
+
+aside>section>p input[type = "radio"]{
+    margin: 0rem 0.3rem 0rem 2px;
+    transform: scale(1.2);
 }
 
 .btns>span:hover{
@@ -145,7 +149,8 @@ main{
 }
 
 #history>li{
-    margin: 0.6rem 1rem;
+    margin: 0.3rem 1rem;
+    line-height: 1.5rem;
 }
 
 #input{
@@ -191,4 +196,12 @@ main{
     background-color: rgb(255,240,240);
     margin: 0.3rem 0rem !important;
     padding: 0.3rem 1rem;
+}
+
+.console-cnt{
+    background-color: #ccc;
+    border-radius: 0.75rem;
+    padding: 0.03rem 0.4rem;
+    margin-left: 0.6rem;
+    color: #fff;
 }
