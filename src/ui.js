@@ -136,6 +136,7 @@ const asStart = async e => {
     const timeout = 1000; // ms
     try{
         await scom.init({ baudRate: 256000 });
+        scom.onDisconnect = e => pushHistory("The device has been lost.", "console-err");
         await exposure.onchange();
         if(asMode.checked){
             graph.data.datasets[0].data = await spectro.single(timeout);
@@ -192,10 +193,16 @@ const csStart = async e => {
             pushHistory(error.message, "console-err");
         }
         serConsole = new SerialConsole(scom.tee());
+        scom.onDisconnect = e => {
+            pushHistory("The device has been lost.", "console-err");
+            serConsole = null;
+        };
 
         serConsole.logRecv = pushMessage("console-recv");
         serConsole.logSend = pushMessage("console-send");
         serConsole.logError = msg => pushHistory(msg, "console-err");
+
+        serConsole.shiftHist = () => hist.removeChild(hist.children[0]);
     }
 
     rxRep.onchange();

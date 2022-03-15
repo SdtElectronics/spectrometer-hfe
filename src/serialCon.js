@@ -1,7 +1,8 @@
 class SerialConsole{
-    constructor(serial, historySize = 100){
+    constructor(serial, historySize = 100, memorySize = 100){
         this.#serial = serial;
-        this.#con = new Console(historySize);
+        this.#con = new Console(memorySize);
+        this.#historyMax = historySize;
     }
 
     async start(){
@@ -9,13 +10,18 @@ class SerialConsole{
             await this.#serial.init({baudRate: this.#baud});
         }catch(error){
             this.logError(error.message);
+            this.#logRotate();
         }
 
         try{
             this.run = true;
-            await this.#serial.poll((msg, len) => this.logRecv(this.#decoder.decode(msg), len), this);
+            await this.#serial.poll(msg => {
+                this.logRecv(this.#decoder.decode(msg), msg.length);
+                this.#logRotate();
+            }, this);
         }catch(error){
             this.logError(error.message);
+            this.#logRotate();
             if(error.message == "The device has been lost."){
                 await this.stop();
                 this.#serial.deinit();
@@ -34,6 +40,7 @@ class SerialConsole{
             this.run = false;
         }catch(error){
             this.logError(error.message);
+            this.#logRotate();
         }
     }
 
@@ -41,6 +48,7 @@ class SerialConsole{
         this.#con.push(msg);
         const data = this.#encoder.encode(msg);
         this.logSend(msg, data.length);
+        this.#logRotate();
         try{
             await this.#serial.write(data);
         }catch(error){
@@ -51,10 +59,15 @@ class SerialConsole{
     echo(msg){
         const data = this.#encoder.encode(msg);
         this.logSend(msg, data.length);
+        this.#logRotate();
     }
 
     move(step){
         return this.#con.move(step);
+    }
+
+    clear(){
+        this.#historyCur = 0;
     }
 
     set txEncoding(encoding){
@@ -77,9 +90,19 @@ class SerialConsole{
         this.#baud = baud;
     }
 
+    #logRotate(){
+        if(this.#historyMax == this.#historyCur){
+            this.shiftHist();
+        }else{
+            ++(this.#historyCur);
+        }
+    }
+
     logRecv = msg => {};
     logSend = msg => {};
     logError = msg => {};
+
+    shiftHist = () => {};
 
     #baud = 9600;
 
@@ -91,4 +114,7 @@ class SerialConsole{
     #decoder = new TextDecoder();
 
     run = false;
+
+    #historyMax = 100;
+    #historyCur = 0;
 }

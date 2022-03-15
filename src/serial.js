@@ -4,6 +4,10 @@ class SerialCom{
 
     async require(filters){
         this.#port = await navigator.serial.requestPort(filters);
+        this.#port.addEventListener('disconnect', e => {
+            this?.onDisconnect(this);
+            this.deinit();
+        });
     }
 
     async open(options){
@@ -58,7 +62,7 @@ class SerialCom{
         while(pause.run){
             const { value, done } = await this.read();
             if(value){
-                callback(value, value.length);
+                callback(value);
             }else{
                 break;
             }
