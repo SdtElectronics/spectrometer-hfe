@@ -6,7 +6,12 @@ class Spectrograph{
     async single(timeout){
         while(true){
             await this.acquire();
-            const id = setTimeout(_ => this.acquire(), timeout);
+            let id = 0;
+            const retry = timeOut => id = setTimeout(() => {
+                this.acquire();
+                retry(timeOut);
+            }, timeOut);
+            retry(timeout);
             const arr = await this.fetch();
             clearTimeout(id);
             return this.transform(Array.from(arr));

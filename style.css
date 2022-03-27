@@ -71,12 +71,27 @@ aside>section>p{
     line-height: 2.7rem;
 }
 
-aside>section>p>select{
-    width: 5rem;
+aside>section>p>select, aside>section>p>input[type="number"]{
     font-size: 1.3rem;
     border: none;
     border-bottom: solid 1px #aaa;
-    padding-bottom: 0.2rem;
+    padding-bottom: 0.12rem;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+aside>section>p>input[type="number"]{
+    width: 3rem;
+    -moz-appearance:textfield; /* Firefox */
+}
+
+aside>section>p>select{
+    width: 5rem;
 }
 
 aside>section>p input[type = "radio"]{

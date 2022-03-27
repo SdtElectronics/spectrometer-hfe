@@ -133,7 +133,7 @@ spectro.transform = arr => arr//.slice(100, 1520);
 const asMode = document.getElementById("as-single");
 const asStartBtn = document.getElementById("as-start");
 const asStart = async e => {
-    const timeout = 1000; // ms
+    const timeout = 3000; // ms
     try{
         await scom.init({ baudRate: 256000 });
         scom.onDisconnect = e => pushHistory("The device has been lost.", "console-err");
@@ -233,7 +233,7 @@ csStartBtn.onclick = csStart;
 document.getElementById("cs-stop").onclick = async e => {
     try{
         serConsole.pause();
-        await scom.close();
+        await serConsole.stop();
     }catch(error){
         pushHistory(error.message, "console-err");
     }

@@ -1,5 +1,5 @@
 class SerialConsole{
-    constructor(serial, historySize = 100, memorySize = 100){
+    constructor(serial, historySize = 50, memorySize = 100){
         this.#serial = serial;
         this.#con = new Console(memorySize);
         this.#historyMax = historySize;
