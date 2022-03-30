@@ -41,14 +41,14 @@ aside>header>h1{
 }
 
 aside>section{
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 aside>section>h4{
     position: relative;
-    font-size: 1.5rem;
+    font-size: 1.44rem;
     font-weight: normal;
-    line-height: 2.85rem;
+    line-height: 2.73rem;
     margin: 0px;
 }
 
@@ -67,12 +67,12 @@ aside>section>p{
     justify-content: space-between;
     align-items: baseline;
     margin: 0px;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     line-height: 2.7rem;
 }
 
 aside>section>p>select, aside>section>p>input[type="number"]{
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     border: none;
     border-bottom: solid 1px #aaa;
     padding-bottom: 0.12rem;
@@ -111,6 +111,12 @@ aside>section>p input[type = "radio"]{
     text-align: center;
 }
 
+.block-btn{
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
 .inline-btn:first-child::after{
     position: absolute;
     right: 0rem;
@@ -121,8 +127,12 @@ aside>section>p input[type = "radio"]{
     background-color: var(--frame-border-color);
 }
 
-.inline-btn:hover{
+.inline-btn:hover, .block-btn:hover{
     background-color: #f3f3f3;
+}
+
+#tavg{
+    width: 2rem;
 }
 
 main{
@@ -209,8 +219,17 @@ main{
 .console-err{
     color: #e10000;
     background-color: rgb(255,240,240);
-    margin: 0.3rem 0rem !important;
-    padding: 0.3rem 1rem;
+    
+}
+
+.console-info{
+    color: #0099FF;
+    background-color: rgb(240,240,255);
+}
+
+.console-err, .console-info{
+    margin: 0rem !important;
+    padding: 0.4rem 1rem;
 }
 
 .console-cnt{

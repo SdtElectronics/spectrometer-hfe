@@ -1,0 +1,1 @@
+const timeoutSync = ms => new Promise(resolve => setTimeout(resolve, ms));

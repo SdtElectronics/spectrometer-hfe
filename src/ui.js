@@ -22,7 +22,7 @@ const pushMessage = className => {
 /****** Graph ******/
 const data = {
     //labels: Array(870-350).fill().map((_, i)=> i + 350),
-    labels: Array(3500).fill().map((_, i)=> i),
+    labels: Array(3648).fill().map((_, i)=> i),
     datasets: [{
       backgroundColor: '#0099ff',
       borderColor: '#0099ff',
@@ -83,14 +83,15 @@ let serConsole = null;
 const scom = new SerialCom();
 
 const sendText = async msg => {
-    const encoder = new TextEncoder();
     try{
-        await scom.write(encoder.encode(msg));
+        await scom.write(sendText.encoder.encode(msg));
     }catch(error){
         pushHistory(error.message, "console-err");
     }
     serConsole?.echo(msg);
-}
+};
+
+sendText.encoder = new TextEncoder();
 
 const exposure = document.getElementById("exposure");
 exposure.onchange = async e => {
@@ -99,7 +100,34 @@ exposure.onchange = async e => {
     }
 };
 
-spectro.acquire = () => sendText("@c0080#@");
+const lambdaLB = document.getElementById("λ-lb");
+const lambdaUB = document.getElementById("λ-ub");
+
+lambdaLB.onchange = e => {
+    const LB = parseInt(lambdaLB.value);
+    const UB = parseInt(lambdaUB.value);
+    if(isNaN(LB)){
+
+    }else if(LB >= UB){
+        
+    }else{
+        //graph.config.options.scales.x.min = LB;
+    }
+};
+
+lambdaUB.onchange = e => {
+    const LB = parseInt(lambdaLB.value);
+    const UB = parseInt(lambdaUB.value);
+    if(isNaN(UB)){
+        
+    }else if(LB >= UB){
+        
+    }else{
+        //graph.config.options.scales.x = UB;
+    }
+};
+
+spectro.acquire = async () => await sendText("@c0080#@");
 
 spectro.fetch = async () => {
     let length = 0;
@@ -132,12 +160,14 @@ spectro.transform = arr => arr//.slice(100, 1520);
 
 const asMode = document.getElementById("as-single");
 const asStartBtn = document.getElementById("as-start");
+const tavg = document.getElementById("tavg");
 const asStart = async e => {
     const timeout = 3000; // ms
     try{
         await scom.init({ baudRate: 256000 });
         scom.onDisconnect = e => pushHistory("The device has been lost.", "console-err");
         await exposure.onchange();
+        await timeoutSync(100);
         if(asMode.checked){
             graph.data.datasets[0].data = await spectro.single(timeout);
             graph.update();
@@ -147,7 +177,7 @@ const asStart = async e => {
             await spectro.continuous(timeout, arr => {
                 graph.data.datasets[0].data = arr;
                 graph.update();
-            });
+            }, parseInt(tavg.value));
         }
     }catch(error){
         pushHistory(error.message, "console-err");
@@ -240,8 +270,9 @@ document.getElementById("cs-stop").onclick = async e => {
 };
 
 const cmd = document.getElementById("cmd");
+const cmdIn = document.getElementById("input");
 
-document.getElementById("input").onsubmit = e => {
+cmdIn.onsubmit = e => {
     e.preventDefault();
     serConsole?.send(cmd.value);
     cmd.value = "";
@@ -257,3 +288,43 @@ cmd.onkeyup= e => {
         cmd.value = serConsole?.move(-1);
     }
 };
+
+/****** Calibration ******/
+document.getElementById("ca-start").onclick = e => {
+    const tmp = cmdIn.onsubmit;
+    const fit = new linearFit();
+
+    pushHistory(`Please enter offset for sample 1`, "console-info");
+
+    const callback = (function*(){
+        let i = 1;
+        while(true){
+            const offset = parseInt(cmd.value);
+            if(isNaN(offset)) break;
+            pushHistory(`${offset}`, "console-send");
+            pushHistory(`Please enter wavelength for sample ${i}:`, "console-info");
+            yield;
+            const lambda = parseInt(cmd.value);
+            if(isNaN(lambda)) break;
+            fit.push(offset, lambda);
+            pushHistory(`${lambda}`, "console-send");
+            pushHistory(`Please enter offset for sample ${i++}:`, "console-info");
+            yield;
+        }
+        fit.fit();
+        localStorage.setItem("cal.k", `${fit.k}`);
+        localStorage.setItem("cal.b", `${fit.b}`);
+        pushHistory(`Calibration finished with ${i - 1} samples. ${fit.k} ${fit.b}`, "console-info");
+        cmdIn.onsubmit = tmp;
+    })();
+
+    cmdIn.onsubmit = e => {
+        e.preventDefault();
+        callback.next();
+        cmd.value = "";
+    };
+
+};
+
+lambdaLB.onchange();
+lambdaUB.onchange();

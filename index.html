@@ -50,16 +50,33 @@
                 </p>
 
                 <p class = "side-indent">
-                    λ <input type = "number" value = "350"/>nm 
-                    - <input type = "number" value = "800"/>nm
+                    λ <input id = "λ-lb" type = "number" value = "350"/>nm 
+                    - <input id = "λ-ub" type = "number" value = "800"/>nm
+                </p>
+
+                <p class = "side-indent">
+                    Time Domain Avg. <input id = "tavg" type = "number" value = "5"/> pts 
                 </p>
             </section>
 
             <section>
                 <h4 class = "side-indent">Calibration</h4>
                 <p class = "btns">
-                    <span class = "inline-btn">▶</span>
-                    <span class = "inline-btn">⟲</span>
+                    <span id = "ca-start" class = "inline-btn">▶</span>
+                    <span id = "ca-reset" class = "inline-btn">⟲</span>
+                </p>
+                <p class = "btns">
+                    <span id = "export" class = "block-btn">Bias Level Correction</span>
+                </p>
+            </section>
+
+            <section>
+                <h4 class = "side-indent">Utilities</h4>
+                <p class = "side-indent">
+                    <span id = "export">Export Data</span>
+                    <select id = "export-fmt">
+                        <option value = "CSV">CSV</option>
+                    </select>
                 </p>
             </section>
 
@@ -105,10 +122,12 @@
     </body>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="src/utils.js"></script>
     <script src="src/spectrograph.js"></script>
     <script src="src/console.js"></script>
     <script src="src/serial.js"></script>
     <script src="src/codec.js"></script>
     <script src="src/serialCon.js"></script>
+    <script src="src/linearFit.js"></script>
     <script src="src/ui.js"></script>
 </html>
