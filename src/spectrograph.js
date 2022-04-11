@@ -1,5 +1,3 @@
-const { urlToHttpOptions } = require("url");
-
 class Spectrograph{
     constructor(){
 
@@ -17,15 +15,29 @@ class Spectrograph{
 
     getXscale(){
         const scale = [];
-        let x;
-        const end = this.#k > 0 ? (x = this.#lBound, this.#uBound) 
-                                : (x = this.#uBound, this.#lBound);
-
-        while(x != end){
-            scale.push(x);
-            x += this.#k;
+        if(this.#k > 0){
+            for(let x = this.#lBound; x < this.#uBound; x += this.#k){
+                scale.push(x);
+            }
+        }else if(this.#k < 0){
+            for(let x = this.#uBound; x > this.#lBound; x += this.#k){
+                scale.push(x);
+            }
+        }else{
+            
         }
+
         return scale;
+    }
+
+    dump(){
+        return {
+            raw: Array.from(this.#raw),
+            pixelRange: this.#getClip(),
+            lambdaRange: [this.#lBound, this.#uBound],
+            k: this.#k,
+            b: this.#b
+        };
     }
 
     async #sample(timeout){
@@ -38,14 +50,14 @@ class Spectrograph{
         retry(timeout);
         const arr = await this.fetch();
         clearTimeout(id);
-        //return this.transform(Array.from(arr));
-        return Array.from(arr);
+        return this.#raw = this.transform(Array.from(arr));
+        //return this.#raw = Array.from(arr);
     }
 
-    async #getClip(){
+    #getClip(){
         const lb = (this.#lBound - this.#b)/this.#k;
         const ub = (this.#uBound - this.#b)/this.#k;
-        return [lb, ub].sort();
+        return [Math.floor(lb), Math.floor(ub)].sort();
     }
 
     async single(timeout){
@@ -91,7 +103,7 @@ class Spectrograph{
 
     fetch = async function(){};
 
-    transform = x => x;
+    transform = arr => arr;
 
     #run = false;
 
@@ -100,4 +112,6 @@ class Spectrograph{
 
     #k = 0;
     #b = 0;
+
+    #raw = [];
 }

@@ -51,10 +51,10 @@
 
                 <p class = "side-indent">
                     λ <input id = "λ-lb" type = "number" value = "350"/>nm 
-                    - <input id = "λ-ub" type = "number" value = "800"/>nm
+                    - <input id = "λ-ub" type = "number" value = "874"/>nm
                 </p>
 
-                <p class = "side-indent">
+                <p class = "side-indent" style = "display: none;">
                     Time Domain Avg. <input id = "tavg" type = "number" value = "5"/> pts 
                 </p>
             </section>
@@ -66,16 +66,23 @@
                     <span id = "ca-reset" class = "inline-btn">⟲</span>
                 </p>
                 <p class = "btns">
-                    <span id = "export" class = "block-btn">Bias Level Correction</span>
+                    <span id = "ca-bias" class = "block-btn">Bias Level Correction</span>
                 </p>
             </section>
 
             <section>
-                <h4 class = "side-indent">Utilities</h4>
+                <h4 class = "side-indent">Export Data</h4>
+
+                <p class = "btns">
+                    <span id = "xp-cp" class = "inline-btn">🗐</span>
+                    <span id = "xp-dl" class = "inline-btn">🖫</span>
+                </p>
+
                 <p class = "side-indent">
-                    <span id = "export">Export Data</span>
-                    <select id = "export-fmt">
+                    <span id = "export">Format</span>
+                    <select id = "xp-fmt">
                         <option value = "CSV">CSV</option>
+                        <option value = "RAW">RAW</option>
                     </select>
                 </p>
             </section>

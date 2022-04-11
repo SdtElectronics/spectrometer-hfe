@@ -21,8 +21,7 @@ const pushMessage = className => {
 
 /****** Graph ******/
 const data = {
-    //labels: Array(870-350).fill().map((_, i)=> i + 350),
-    labels: Array(3648).fill().map((_, i)=> i),
+    labels: [],
     datasets: [{
       backgroundColor: '#0099ff',
       borderColor: '#0099ff',
@@ -56,8 +55,6 @@ const config = {
         scales: {
             x: {
                 type: 'linear',
-                //min: 350,
-                //max: 870,
                 
                 ticks: {
                     stepSize: 50
@@ -111,7 +108,8 @@ lambdaLB.onchange = e => {
     }else if(LB >= UB){
         
     }else{
-        //graph.config.options.scales.x.min = LB;
+        graph.config.options.scales.x.min = LB;
+        spectro.setRange(LB, UB);
     }
 };
 
@@ -123,7 +121,8 @@ lambdaUB.onchange = e => {
     }else if(LB >= UB){
         
     }else{
-        //graph.config.options.scales.x = UB;
+        graph.config.options.scales.x.max = UB;
+        spectro.setRange(LB, UB);
     }
 };
 
@@ -140,7 +139,7 @@ spectro.fetch = async () => {
             length += len;
             if(value[len - 1] == 0x4b && value[len - 2] == 0x4f){
                 if(length >= 7302){
-                    const ret = Array(7296);
+                    const ret = Array(3648);
                     let j = 0;
                     for(let i = length - 7302 + 4; i < length - 2; i += 2){
                         ret[j++] = (frame[i] << 8) + frame[i + 1];
@@ -167,7 +166,7 @@ const asStart = async e => {
         await scom.init({ baudRate: 256000 });
         scom.onDisconnect = e => pushHistory("The device has been lost.", "console-err");
         await exposure.onchange();
-        await timeoutSync(100);
+        await timeoutSync(500);
         if(asMode.checked){
             graph.data.datasets[0].data = await spectro.single(timeout);
             graph.update();
@@ -289,7 +288,43 @@ cmd.onkeyup= e => {
     }
 };
 
+/****** Export ******/
+const getData = () => {
+    const fmt = document.getElementById("xp-fmt").value;
+    const raw = spectro.dump();
+    if(raw.raw.length == 0){
+        return 0;
+    }
+    if(fmt == "CSV"){
+        return ser2csv({
+            Intensity: raw.raw.slice(...raw.pixelRange),
+            Wavelength: spectro.getXscale()
+        });
+    }else if(fmt == "RAW"){
+        return raw.raw.join('\n');
+    }
+};
+
+document.getElementById("xp-cp").onclick = e => {
+    const data = [
+        new ClipboardItem({ "text/plain": new Blob([getData()], { type: "text/plain" }) })
+    ];
+    navigator.clipboard.write(data);
+};
+
+document.getElementById("xp-dl").onclick = e => {
+    dlText(getData(), "untitled.csv");
+};
+
 /****** Calibration ******/
+const calSpec = () => {
+    spectro.calibrate(
+        parseFloat(localStorage.getItem('cal.k') ?? '1'), 
+        parseFloat(localStorage.getItem('cal.b') ?? '0')
+    );
+    graph.data.labels = spectro.getXscale();
+};
+
 document.getElementById("ca-start").onclick = e => {
     const tmp = cmdIn.onsubmit;
     const fit = new linearFit();
@@ -308,13 +343,14 @@ document.getElementById("ca-start").onclick = e => {
             if(isNaN(lambda)) break;
             fit.push(offset, lambda);
             pushHistory(`${lambda}`, "console-send");
-            pushHistory(`Please enter offset for sample ${i++}:`, "console-info");
+            pushHistory(`Please enter offset for sample ${++i}:`, "console-info");
             yield;
         }
         fit.fit();
         localStorage.setItem("cal.k", `${fit.k}`);
         localStorage.setItem("cal.b", `${fit.b}`);
-        pushHistory(`Calibration finished with ${i - 1} samples. ${fit.k} ${fit.b}`, "console-info");
+        calSpec();
+        pushHistory(`Calibration finished with ${i - 1} samples.`, "console-info");
         cmdIn.onsubmit = tmp;
     })();
 
@@ -326,5 +362,39 @@ document.getElementById("ca-start").onclick = e => {
 
 };
 
+document.getElementById("ca-reset").onclick = e => {
+    localStorage.setItem("cal.k", `1`);
+    localStorage.setItem("cal.b", `0`);
+};
+
+document.getElementById("ca-bias").onclick = async e => {
+    try{
+        await scom.init({ baudRate: 256000 });
+    
+        await spectro.single(2000);
+        const bias = spectro.dump().raw;
+
+        const avg = 5;
+        for(let i = 1; i != avg; ++i){
+            await timeoutSync(1000);
+            await spectro.single(2000);
+            const tmp = spectro.dump().raw;
+            bias.forEach((e, i) => {
+                bias[i] += tmp[i];
+            });
+        }
+
+    }catch(error){
+        pushHistory(error.message, "console-err");
+    }
+
+    bias.forEach((e, i) => bias[i] /= avg);
+    spectro.transform = arr => arr.map((e, i) => e - bias[i] + 10);
+
+    pushHistory(`Bias correction finished`, "console-info");
+};
+
 lambdaLB.onchange();
 lambdaUB.onchange();
+
+calSpec();
