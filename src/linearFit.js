@@ -1,4 +1,4 @@
-class linearFit{
+class LinearFit{
     constructor(){
     }
 

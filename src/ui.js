@@ -327,7 +327,7 @@ const calSpec = () => {
 
 document.getElementById("ca-start").onclick = e => {
     const tmp = cmdIn.onsubmit;
-    const fit = new linearFit();
+    const fit = new LinearFit();
 
     pushHistory(`Please enter offset for sample 1`, "console-info");
 
@@ -384,12 +384,12 @@ document.getElementById("ca-bias").onclick = async e => {
             });
         }
 
+        bias.forEach((e, i) => bias[i] /= avg);
+        spectro.transform = arr => arr.map((e, i) => e - bias[i] + 10);
+
     }catch(error){
         pushHistory(error.message, "console-err");
     }
-
-    bias.forEach((e, i) => bias[i] /= avg);
-    spectro.transform = arr => arr.map((e, i) => e - bias[i] + 10);
 
     pushHistory(`Bias correction finished`, "console-info");
 };
